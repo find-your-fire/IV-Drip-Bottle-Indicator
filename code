@@ -1,0 +1,261 @@
+#include <ESP8266WiFi.h>
+
+// Network credentials
+const char* ssid = "Home";
+const char* password = "16December1999";
+
+// Set web server port number to 80
+WiFiServer server (80);
+
+// Variable to store the HTTP request
+String header;
+
+// Assign output variables to GPIO pins
+float value=0;
+int buzzer = D4;
+int ldr=A0;
+int led=D8;
+
+ 
+
+// Current time
+unsigned long currentTime = millis();
+
+// Previous time
+
+unsigned long previousTime = 0;
+
+// Define timeout time in milliseconds (example: 2000ms = 2s)
+const long timeoutTime = 2000;
+
+void setup() {
+pinMode (buzzer, OUTPUT);
+pinMode(ldr,INPUT);
+pinMode (led, OUTPUT);
+
+ 
+
+Serial.begin (115200);
+
+// Connect to Wi-Fi network with SSID and password
+
+Serial.print ("Connecting to ");
+
+Serial.println (ssid);
+
+WiFi.begin(ssid, password);
+
+while (WiFi.status() != WL_CONNECTED) {
+delay (500);
+Serial.print(".");
+
+}
+
+// Print local IP address and start web server
+Serial.println("");
+Serial.println("Wifi connected.");
+Serial.println("IP address: ");
+Serial.println(WiFi.localIP());
+server.begin();
+
+}
+
+void loop(){
+WiFiClient client = server.available(); // Listen for incoming clients
+
+ 
+
+if(client) { // YE a new client comects,
+Serial.println("New Client."); // print a message out in the serial port
+
+String currentLine =""; // nake a String to hold incoming data from the client
+currentTime = millis();
+
+previousTime = currentTime;
+
+while (client.connected() && currentTime - previousTime <= timeoutTime) { // loop vhile the client's comected
+currentTime = millis();
+
+if (client.available()) { // 4€ there's bytes to read from the client,
+char c = client.read(); // read a byte, then
+Serial.write(c); // peint it out the serial monitor
+header +=c;
+if(c== '\n') {                     // if the byte is a nevline character
+
+// if the current Line is blank, you got two newline characters in a row.
+// that's the end of the client RTTP request, so send a response:
+if (currentLine.length() == 0) {
+// RUTP headers alvays start with a response code (e.g. HITE/L.1 200 OR)
+// and a content-type so the client knows what's coming, then a blank Line:
+client.println("HTTP/1.1 200 OK");
+client.println("Content-type:text/html");
+client.println( "Connection: close");
+client.println();
+
+
+
+
+
+
+// HTML web page
+client.println("<!DOCTYPE html>");
+
+client.println ("<html Lang=\"en\">");
+
+client.println ("<head>");
+
+client.println ("<title>DASHBOARD</title>");
+
+client.println ("<meta charset=\"UTF-8\">");
+
+client.println ("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+client.println("<meta http-equiv='refresh' content='2000000'>");
+
+// client.println ("<link rel=\"stylesheet\" href=\"https: //www.w3schools.com/w3css/4/x
+client.println ("<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Caveat\">");
+client.println ("<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css\">");
+client.println ("<style>") ;
+
+client.println ("body { background-color: #FFEBCD; font-family: \"Lato\">");
+client.println(".mySlides {display: none}") ;
+
+client.println(" footer { position: fixed; height: 30px; width: 100%; background-color: \"black\"; color:\"white\">");
+client.println("p.copyright { position:bsolute;width:100%; color: #fff; line-height:0.2px");
+//client.println(".parent { position: relative; top: 0; left: 0;}.imagel (position: relative;top:
+client.println(".box{width: 1000px; height: 450px; position:absolute; margin-left: 20");
+client.println(".caption { position: relative; left:0; top: 50%; width: 100%; ");
+
+ 
+
+client.println("<script>");
+client.println("var count = 1;");
+client.println(" function setColor(btn, color) {");
+
+ 
+
+client.println(" var property = document .getBlementById (btn);");
+client.println("if (count == 0) (");
+
+client.println(" property.style.backgroundColor = \"#00FF00\" ");
+client.println("  property.value=\"Room3/Bed8/Drip Changed\" ");
+client.println(" count = 1;");
+
+client.println("}");
+
+client.println("else {");
+
+client.println(" property. style.backgroundColor = \"#FF0000\" ");
+client.println("  property.value=\"Room3/Bed8/Drip status is Low\" ");
+
+ 
+
+client.println(" count = 0;");
+client.println("}");
+
+client.println("}");
+client.println ("</script>");
+client.println ("</head>");
+
+
+client.println ("<body>");
+client.println ("<div class=\"w3-top\">") ;
+
+client.println(" <div class=\"w3-bar w3-black w3-card\">");
+
+client.println(" <a class=\"#3-bar-item w3-button w3-padding-large w3-hide-medium \">");
+client.println(" <a class=\"w3-bar-item w3-button w3-padding-large\">HOME</a> &nbsp &nbsp ");
+client.println(" <a class=\"w3-bar-item w3-button w3-padding-large w3-hide-small\">ABOUT US</a> &nbsp &nbsp ");
+client.println(" <a class=\"w3-bar-item w3-button w3-padding-large w3-hide-smal1\">DEPARTMENT</a> &nbsp &nbsp ");
+client.println(" <a class=\"w3-bar-item w3-button w3-padding-large w3-hide-smal1\">DUTIES</a> &nbsp &nbsp ");
+client.println(" <a class=\"w3-bar-item w3-button w3-padding-large w3-hide-smal1\">CONTACT</a> &nbsp &nbsp ");
+client.println(" <div class=\"w3-dropdown-hover w3-hide-small\">") ;
+
+//client.println(" <button class=\"w3-padding-large w3-button\" title=\"More\">MORE <i class="
+client.println(" <div class=\"w3-dropdown-content w3-bar-block w3-card-4\">");
+client.println(" <a  class=\"w3-bar-item w3-button\">CALLS</a>");
+
+client.println("<a class=\"w3-bar-item w3-button\">EXTRAS</a>") ;
+
+client.println(" <a class=\"w3-bar-item w3-button\">CHATS</a>") ;
+
+//client.println(" </div>");
+//
+//client.println ("a class=\"w3-padding-large w3-hover-red w3-hide-small w3-right\"><i class:
+//client.println ("</div>")
+
+ 
+
+client.println("<a class=\"w-padding-large w3-hover-red w3-hide-small w3-right\">");
+client.println ("</div>");
+client.println ("<div class=\"w3-content\" style=\"max-width:2000px; margin-top:6px\">");
+client.println ("<div class=\"caption\"><marquee behavior=\"scroll\" direction=\"left\"> <span class=\"border\">WELCOME TO OUR DASHBOARD</span></marquee>");
+client.println ("</div>");
+//client.println(" <div class=\"parent\">");
+//client.println(" <img class=\"image1\" src=\"https://media.istockphoto.com/vectors/prospectus-icon-with-editable-stroke-vector-id1309071135?k=20&m=1309071135&s=612x612&w=0&h=vgJmYtM72HlJPV0wThoxw7Jf80jSqE5fJsv9dtCc6wY\"
+//client.println(" <img class=\"image2\" src=\"
+//client.println(" <img class=\"image3\" src=\"
+//client.println ("</div>");
+client.println ("<div class=\"box image4 \">");
+client.println("<h3 class=\"alert box\">ALERTS</h3>");
+
+  float value=analogRead (A0);
+delay (100);
+if(value>96) {
+client.println("<h3> <input type=\"button\" value=\"Room3/Bed8/Drip Status is low\" </h3>");
+digitalWrite(led,HIGH);
+digitalWrite (buzzer, HIGH);
+delay (200);
+digitalWrite (buzzer, LOW);
+digitalWrite(led, LOW);
+delay (2000);
+}
+else
+{
+client.println("<p><h3>Room3/Wardl/Drip Status is High</h3><p>");
+
+digitalWrite(led, LOW);
+digitalWrite (buzzer, LOW);
+
+}
+delay (20000);
+client.println ("</div>");
+
+
+client.println("<footer> <p class=\"copyright\"> © City Hospital</p></footer>") ;
+client.println("</div>") ;
+client.println("</body></html>") ;
+
+
+// The HTTP response ends with another blank line
+client.println();
+// Break out of the while loop
+break;
+
+} else { // if you got @ newline, then clear currentLine
+currentLine = "";
+
+}
+}
+else if (c != '\r') { // if you got anything else but a carriage return character,
+
+currentLine +=c;// add it to the end of the currentLine
+}
+}
+}
+ 
+
+// Clear the header variable
+header = "";
+
+// Close the connection
+client.stop();
+Serial.println("Client disconnected.");
+Serial.println("");
+}
+}
+ 
+
+
+
+
+ 
