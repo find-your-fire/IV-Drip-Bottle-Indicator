@@ -1,0 +1,252 @@
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ThingSpeak.h>
+// Network credentials
+const char* ssid = "Home";
+const char* password ="16December1999";
+
+// Set web server port number to 80
+WiFiServer server (80);
+
+// Variable to store the HTTP request
+String header;
+
+// Assign output variables to GPIO pins
+float value=0;
+//int buzzer = D4;
+int ldr=A0;
+//int led=D8;
+WiFiClient client;
+
+unsigned long myChannelNumber = 1720353; //Your Channel Number (Without Brackets)
+
+const char * myWriteAPIKey = "7NQ13BR3NZUA5SOA"; //Your Write API Key
+
+ 
+
+// Current time
+unsigned long currentTime = millis();
+
+// Previous time
+
+unsigned long previousTime = 0;
+
+// Define timeout time in milliseconds (example: 2000ms = 2s)
+const long timeoutTime = 2000;
+
+void setup() {
+//pinMode (buzzer, OUTPUT);
+pinMode(ldr,INPUT);
+//pinMode (led, OUTPUT);
+
+ 
+
+Serial.begin (115200);
+
+// Connect to Wi-Fi network with SSID and password
+
+Serial.print ("Connecting to ");
+
+Serial.println (ssid);
+
+WiFi.begin(ssid, password);
+
+while (WiFi.status() != WL_CONNECTED) {
+delay (500);
+Serial.print(".");
+ThingSpeak.begin(client);
+
+
+}
+
+// Print local IP address and start web server
+Serial.println("");
+Serial.println("Wifi connected.");
+Serial.println("IP address: ");
+Serial.println(WiFi.localIP());
+server.begin();
+
+}
+
+void loop(){
+  WiFiClient client = server.available();   // Listen for incoming clients
+
+  if (client) {                             // If a new client connects,
+    Serial.println("New Client.");          // print a message out in the serial port
+    String currentLine = "";                // make a String to hold incoming data from the client
+    currentTime = millis();
+    previousTime = currentTime;
+    while (client.connected() && currentTime - previousTime <= timeoutTime) { // loop while the client's connected
+      currentTime = millis();         
+      if (client.available()) {             // if there's bytes to read from the client,
+        char c = client.read();             // read a byte, then
+        Serial.write(c);                    // print it out the serial monitor
+        header += c;
+        if (c == '\n') {                    // if the byte is a newline character
+          // if the current line is blank, you got two newline characters in a row.
+          // that's the end of the client HTTP request, so send a response:
+          if (currentLine.length() == 0) {
+            // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
+            // and a content-type so the client knows what's coming, then a blank line:
+            client.println("HTTP/1.1 200 OK");
+            client.println("Content-type:text/html");
+            client.println("Connection: close");
+            client.println();
+         client.println("   <!DOCTYPE html>");
+
+client.println("<html Lang=\"en\">");
+
+client.println("<head>");
+
+client.println("<title>DASHBOARD</title>");
+
+client.println("<meta charset=\"UTF-8\">");
+
+client.println("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+client.println("<meta http-equiv=\'refresh\' content=\'2000000\'>");
+
+client.println("<link rel=\"stylesheet\" href=\"https://www.w3schools.com/w3css/4/w3.css\">");
+client.println("<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Caveat\">");
+client.println("<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css\">");
+client.println("<style>");
+
+client.println("body { background-color: #FFEBCD; font-family: \"Lato\", sans-serif}");
+client.println(".mySlides {display: none}");
+
+client.println(".footer { position: fixed; bottom:0; height: 30px; width: 100%; background-color: black; color:white }");
+client.println("p.copyright { position:absolute;width:100%; color: #fff; line-height:0.2px;text-align: center}");
+client.println(".box{width: 1200px; height: 450px; top:50%; bottom: 0; left: 0;right: 0;margin: auto;}");
+//client.println(".box{width: 1200px; height: 450px; position:relative; top:30%; margin-left: 20 ; margin-right: 20}");
+client.println(".caption { position: relative; left:0; top: 50%; width: 100% ;text-align: center; color: #000;}" ".caption span.border {background-color: #111; color: #fff; padding: 18px; font-size: 25px; letter-spacing: 10px;}");
+client.println(".alert{color:red; font-size: 20px}");
+client.println(".image4{background-color: gray;padding: 18px; font-size: 18px}");
+//client.println(".image5{text-align:center}");
+client.println("</style>");
+client.println("<script> ");
+  client.println("  var count = 1; ");
+    client.println("function setColor(btn, color) { ");
+     client.println("   var property = document.getElementById(btn); ");
+      client.println("  if (count == 0) { ");
+       client.println("     property.style.backgroundColor = \"#00FF00\" ");
+       client.println("  property.value= \"Room3/Bed8/Drip Changed\" ");
+        client.println("    count = 1; ");        
+       client.println(" }");
+       client.println(" else {");
+         client.println("   property.style.backgroundColor = \"#FF0000\" ");
+         client.println("  property.value=\"Room3/Bed8/Drip Status is Low\" ");
+         client.println("   count = 0;");
+       client.println(" }");
+   client.println(" }");
+client.println("</script>");
+//client.println("<script>");
+//client.println("var count = 1;");
+//client.println(" function setColor(btn, color) {");
+//
+// 
+//
+//client.println(" var property = document.getElementById (btn);");
+//client.println("if (count == 0) {");
+//
+//client.println(" property.style.backgroundColor = \"#00FF00\" ");
+//client.println("  property.value=\"Room3/Bed8/Drip Changed\" ");
+
+//client.println(" count = 1;");
+//
+//client.println("}");
+//
+//client.println("else {");
+//
+//client.println(" property.style.backgroundColor = \"#FF0000\" ");
+//client.println("  property.value=\"Room3/Bed8/Drip status is Low\" ");
+//
+//client.println(" count = 0;");
+//client.println("}");
+//
+//client.println("}");
+//client.println ("</script>");
+
+client.println("</head>");
+
+
+client.println("<body>");
+client.println("<div class=\"w3-top\">");
+
+client.println("<div class=\"w3-bar w3-black w3-card\">");
+
+client.println("<a class=\"w3-bar-item w3-button w3-padding-large w3-hide-medium w3-hide-large w3-right\"><i class=\"fa fa-bars\"></i></a>");
+client.println("<a class=\"w3-bar-item w3-button w3-padding-large\">HOME </a>");
+ client.println("<a class=\"w3-bar-item w3-button w3-padding-large w3-hide-small\">ABOUT US</a>");
+ client.println("<a class=\"w3-bar-item w3-button w3-padding-large w3-hide-smal1\">DEPARTMENT</a>");
+client.println("<a class=\"w3-bar-item w3-button w3-padding-large w3-hide-smal1\">DUTIES</a>");
+client.println("<a class=\"w3-bar-item w3-button w3-padding-large w3-hide-smal1\">CONTACT </a>");
+client.println("<div class=\"w3-dropdown-hover w3-hide-small\">");
+
+client.println("<button class=\"w3-padding-large w3-button\">MORE <i class=\"fa fa-caret-down\"></i></button>");
+ client.println("<div class=\"w3-dropdown-content w3-bar-block w3-card-4\">");
+client.println("<a  class=\"w3-bar-item w3-button\">CALLS</a>");
+
+client.println("<a class=\"w3-bar-item w3-button\">EXTRAS</a>");
+
+client.println("<a class=\"w3-bar-item w3-button\">CHATS</a>");
+
+ client.println("</div>");
+client.println("</div>");
+client.println("<a class=\"w3-padding-large w3-hover-red w3-hide-small w3-right\"><i class=\"fa fa-search\"></i></a>");
+client.println("</div>");
+
+client.println("</div>");
+client.println ("<div class=\"w3-content\" style=\"max-width:2000px; margin-top:6px\">");
+
+client.println ("<div class=\"caption\"><marquee behavior=\"scroll\" direction=\"left\"> <span class=\"border\">WELCOME TO OUR DASHBOARD</span></marquee>");
+client.println ("</div>");
+
+client.println ("<div class=\"box image4 \">");
+//client.println(" <div class = \" image5\">");
+//client.println("<h3 class=\"alert box\">ALERTS</h3>");
+//client.println("</div>");
+
+ float value=analogRead (A0);
+ float voltage = value*0.0048876;
+Serial.println(value);
+delay (100);
+if(value>96) {
+client.println("<h3> <input type=\"button\" value=\"Room3/Bed8/Drip Status is Low\" id=\"button\"  style= \"background-color:red\" onclick=\"setColor(\'button\', \'#FF0000\')\";/></h3>");
+//digitalWrite(led,HIGH);
+//digitalWrite (buzzer, HIGH);
+delay (200);
+//digitalWrite (buzzer, LOW);
+//digitalWrite(led, LOW);
+}
+
+ThingSpeak.writeField(myChannelNumber, 1,value, myWriteAPIKey); //Update in ThingSpeak
+ThingSpeak.writeField(myChannelNumber, 2,voltage, myWriteAPIKey);
+
+
+client.println ("</div>");
+client.println("<div class=\"footer\">");
+client.println("<footer> <p class=\"copyright\"> © City Hospital</p></footer>") ;
+client.println("</div>") ;
+client.println("</div>") ;
+delay(120000);
+client.println("</body></html>") ;
+// The HTTP response ends with another blank line
+            client.println();
+            // Break out of the while loop
+            break;
+          } else { // if you got a newline, then clear currentLine
+            currentLine = "";
+          }
+        } else if (c != '\r') {  // if you got anything else but a carriage return character,
+          currentLine += c;      // add it to the end of the currentLine
+        }
+      }
+    }
+    // Clear the header variable
+    header = "";
+    // Close the connection
+    client.stop();
+    Serial.println("Client disconnected.");
+    Serial.println("");
+  }
+}
+ 
